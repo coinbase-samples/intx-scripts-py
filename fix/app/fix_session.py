@@ -91,9 +91,9 @@ class FixSession:
             logfix.info('Order Status for {} : {}'.format(order_id, format_message(message)))
 
         handlers = {
-            EXECTYPE_NEW: handle_new_order(order_id, symbol),
-            EXECTYPE_PARTIAL: handle_partial_fill(order_id, symbol, filled_qty),
-            EXECTYPE_FILL: handle_full_fill(order_id, symbol, filled_qty),
+            EXECTYPE_NEW: lambda: handle_new_order(order_id, symbol),
+            EXECTYPE_PARTIAL: lambda: handle_partial_fill(order_id, symbol, filled_qty),
+            EXECTYPE_FILL: lambda: handle_full_fill(order_id, symbol, filled_qty),
             EXECTYPE_DONE: lambda: handle_order_done(order_id),
             EXECTYPE_CANCELLED: lambda: handle_order_cancelled(order_id, reason),
             EXECTYPE_STOPPED: lambda: handle_order_stopped(order_id, reason),
