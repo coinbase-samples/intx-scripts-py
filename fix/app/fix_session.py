@@ -60,6 +60,7 @@ class FixSession:
             reason = 'Not Returned'
         order_id = message.getField(FIELD_ORDER_ID)
         symbol = message.getField(FIELD_SYMBOL)
+        filled_qty = message.getField(FIELD_QUANTITY)
 
         def handle_new_order(order_id, symbol):
             logfix.info('New Order for Symbol {} with Order ID {}: Order Not Filled'.format(symbol, order_id))
@@ -90,9 +91,9 @@ class FixSession:
             logfix.info('Order Status for {} : {}'.format(order_id, format_message(message)))
 
         handlers = {
-            EXECTYPE_NEW: handle_new_order,
-            EXECTYPE_PARTIAL: handle_partial_fill,
-            EXECTYPE_FILL: handle_full_fill,
+            EXECTYPE_NEW: handle_new_order(order_id, symbol),
+            EXECTYPE_PARTIAL: handle_partial_fill(order_id, symbol, filled_qty),
+            EXECTYPE_FILL: handle_full_fill(order_id, symbol, filled_qty),
             EXECTYPE_DONE: lambda: handle_order_done(order_id),
             EXECTYPE_CANCELLED: lambda: handle_order_cancelled(order_id, reason),
             EXECTYPE_STOPPED: lambda: handle_order_stopped(order_id, reason),
