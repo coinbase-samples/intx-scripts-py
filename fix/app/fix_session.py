@@ -40,11 +40,11 @@ class FixSession:
 
     def on_message(self, message):
         """Process Application messages here"""
-        if message.getHeader().getField(field_msgtype) == msgtype_execution_report and tag_new_order in str(message):
+        if message.getHeader().getField(FIELD_MSGTYPE) == MSGTYPE_EXECUTION_REPORT and TAG_NEW_ORDER in str(message):
             self.get_exec_type(message)
-        elif message.getHeader().getField(field_msgtype) == msgtype_reject:
-            if tag_text in str(message):
-                reason = message.getField(field_text)
+        elif message.getHeader().getField(FIELD_MSGTYPE) == MSGTYPE_REJECT:
+            if TAG_TEXT in str(message):
+                reason = message.getField(FIELD_TEXT)
                 logfix.info('Message Rejected, Reason: {} '.format(reason))
             else:
                 reason = 'Not Returned'
@@ -53,22 +53,23 @@ class FixSession:
     def get_exec_type(self, message):
         """Util Function to parse Execution Reports"""
 
-        exec_type = message.getField(field_exectype)
-        if tag_text in str(message):
-            reason = message.getField(field_text)
+        exec_type = message.getField(FIELD_EXECTYPE)
+        if TAG_TEXT in str(message):
+            reason = message.getField(FIELD_TEXT)
         else:
             reason = 'Not Returned'
-        order_id = message.getField(field_orderid)
-        symbol = message.getField(field_symbol)
+        order_id = message.getField(FIELD_ORDER_ID)
+        symbol = message.getField(FIELD_SYMBOL)
 
-        def handle_new_order():
-            logfix.info('New Order - Order Not Filled')
+        def handle_new_order(order_id, symbol):
+            logfix.info('New Order for Symbol {} with Order ID {}: Order Not Filled'.format(symbol, order_id))
 
-        def handle_partial_fill():
-            logfix.info('Order - Partial fill')
+        def handle_partial_fill(order_id, symbol, filled_qty):
+            logfix.info('Order for Symbol {} with Order ID {}: Partial fill of {}'.format(symbol, order_id, filled_qty))
 
-        def handle_full_fill():
-            logfix.info('Order - Filled')
+        def handle_full_fill(order_id, symbol, filled_qty):
+            logfix.info(
+                'Order for Symbol {} with Order ID {}: Filled with quantity {}'.format(symbol, order_id, filled_qty))
 
         def handle_order_done(order_id):
             logfix.info('Order {} Done'.format(order_id))
@@ -89,15 +90,15 @@ class FixSession:
             logfix.info('Order Status for {} : {}'.format(order_id, format_message(message)))
 
         handlers = {
-            exectype_new: handle_new_order,
-            exectype_partial: handle_partial_fill,
-            exectype_fill: handle_full_fill,
-            exectype_done: lambda: handle_order_done(order_id),
-            exectype_cancelled: lambda: handle_order_cancelled(order_id, reason),
-            exectype_stopped: lambda: handle_order_stopped(order_id, reason),
-            exectype_rejected: lambda: handle_order_rejected(order_id, reason),
-            exectype_restated: lambda: handle_order_restated(order_id, reason),
-            exectype_status: lambda: handle_order_status(order_id, message),
+            EXECTYPE_NEW: handle_new_order,
+            EXECTYPE_PARTIAL: handle_partial_fill,
+            EXECTYPE_FILL: handle_full_fill,
+            EXECTYPE_DONE: lambda: handle_order_done(order_id),
+            EXECTYPE_CANCELLED: lambda: handle_order_cancelled(order_id, reason),
+            EXECTYPE_STOPPED: lambda: handle_order_stopped(order_id, reason),
+            EXECTYPE_REJECTED: lambda: handle_order_rejected(order_id, reason),
+            EXECTYPE_RESTATED: lambda: handle_order_restated(order_id, reason),
+            EXECTYPE_STATUS: lambda: handle_order_status(order_id, message),
         }
 
         handler = handlers.get(exec_type)
@@ -142,18 +143,18 @@ class Application(fix.Application):
         return
 
     def toAdmin(self, message, sessionID):
-        message.setField(fix.StringField(field_username, self.ACCESS_KEY))
-        message.setField(fix.StringField(field_password, self.PASSPHRASE))
-        rawData = self.sign(message.getHeader().getField(field_sendingtime), message.getField(field_username),
-                            message.getHeader().getField(field_targetcompid), message.getField(field_password),
+        message.setField(fix.StringField(FIELD_USERNAME, self.ACCESS_KEY))
+        message.setField(fix.StringField(FIELD_PASSWORD, self.PASSPHRASE))
+        rawData = self.sign(message.getHeader().getField(FIELD_SENDINGTIME), message.getField(FIELD_USERNAME),
+                            message.getHeader().getField(FIELD_TARGETCOMPID), message.getField(FIELD_PASSWORD),
                             self.API_SECRET)
-        message.setField(fix.StringField(field_text, rawData))
-        message.setField(fix.StringField(field_cancelordersondisconnect, "N"))
+        message.setField(fix.StringField(FIELD_TEXT, rawData))
+        message.setField(fix.StringField(FIELD_CANCELORDERSONDISCONNECT, "N"))
         logfix.info("(Admin) S >> %s" % message)
 
     def fromAdmin(self, message, sessionID):
         """Function called for all inbound Administrative Messages"""
-        if message.getHeader().getField(field_msgtype) == msgtype_logon:
+        if message.getHeader().getField(FIELD_MSGTYPE) == MSGTYPE_LOGON:
             logfix.info('(Admin) R << %s' % format_message(message))
         self.fixSession.on_message(message)
         return
@@ -161,19 +162,19 @@ class Application(fix.Application):
     def toApp(self, message, sessionID):
         """Function called for outbound Application Messages"""
         logfix.info('(App) S >> %s' % format_message(message))
-        self.last_client_order_id = message.getField(field_clordid)
+        self.last_client_order_id = message.getField(FIELD_CLORDID)
         return
 
     def fromApp(self, message, sessionID):
         """Function called for inbound Application Messages"""
         logfix.info('(App) R << %s' % format_message(message))
 
-        if message.isSetField(field_clordid) and message.isSetField(field_return_quantity):
-            if message.getField(field_clordid) == self.last_client_order_id:
-                self.last_order_id = message.getField(field_orderid)
-                self.last_quantity = message.getField(field_return_quantity)
-                self.last_side = message.getField(field_side)
-                self.last_product_id = message.getField(field_productid)
+        if message.isSetField(FIELD_CLORDID) and message.isSetField(FIELD_RETURN_QUANTITY):
+            if message.getField(FIELD_CLORDID) == self.last_client_order_id:
+                self.last_order_id = message.getField(FIELD_ORDERID)
+                self.last_quantity = message.getField(FIELD_RETURN_QUANTITY)
+                self.last_side = message.getField(FIELD_SIDE)
+                self.last_product_id = message.getField(FIELD_PRODUCT_ID)
 
                 order_details = {
                     'last_client_order_id': self.last_client_order_id,
@@ -189,9 +190,9 @@ class Application(fix.Application):
                     self.firstRun = False
         return
 
-    def sign(self, t, ACCESS_KEY, target_id, password, secret):
-        message = delimiter.join([t, ACCESS_KEY, target_id, password]).encode("utf-8")
-        hmac_key = base64.b64decode(secret)
+    def sign(self, t, ACCESS_KEY, TARGET_ID, PASSWORD, SECRET):
+        message = DELIMITER.join([t, ACCESS_KEY, TARGET_ID, PASSWORD]).encode("utf-8")
+        hmac_key = base64.b64decode(SECRET)
         signature = hmac.new(hmac_key, message, hashlib.sha256)
         sign_b64 = base64.b64encode(signature.digest()).decode()
         return sign_b64

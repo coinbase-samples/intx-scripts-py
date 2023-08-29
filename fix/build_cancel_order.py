@@ -14,21 +14,20 @@
 import os
 import quickfix as fix
 from app.fix_session import Application
-from app.dictionary import *
 
 class BuildCancel(Application):
 
     def cancel_order(self, fixSession):
-        order_id = os.environ.get('FIX_ORDER_ID')
-        client_order_id = os.environ.get('FIX_CLIENT_ORDER_ID')
-        base_quantity = os.environ.get('FIX_QUANTITY')
-        side = os.environ.get('FIX_SIDE')
-        product = os.environ.get('FIX_PRODUCT_ID')
+        order_id = os.environ.get('fix_order_id')
+        client_order_id = os.environ.get('fix_client_order_id')
+        base_quantity = os.environ.get('fix_quantity')
+        side = os.environ.get('fix_side')
+        product = os.environ.get('fix_product_id')
 
         message = self.create_header(fixSession.portfolio_id, fix.MsgType(fix.MsgType_OrderCancelRequest))
         message.setField(fix.OrderID(str(order_id)))
         message.setField(fix.OrigClOrdID(str(client_order_id)))
         message.setField(fix.Symbol(str(product)))
-        message.setField(fix.Side(fix.Side_BUY if side == side_type_buy else fix.Side_SELL))
+        message.setField(fix.Side(fix.Side_BUY if side == 'BUY' else fix.Side_SELL))
         message.setField(fix.OrderQty(float(base_quantity)))
         fixSession.send_message(message)

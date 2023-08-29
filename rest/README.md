@@ -1,4 +1,4 @@
-# International Exchange API REST Scripts
+# Coinbase International Exchange API REST Scripts
 
 This repository provides examples of common [REST API endpoints](https://docs.cloud.coinbase.com/intx/reference) to use with Coinbase International Exchange (INTX).
 # Getting started
@@ -12,9 +12,10 @@ git clone https://github.com/coinbase-samples/intx-scripts-py
 
 ## 2. Configuration
 
-Within the REST folder, you will find a requirements.txt file, from which you will be able to install dependencies with the following command: 
+Within the REST folder, you will find a requirements.txt file, from which you will be able to install dependencies with the following commands, run from the root directory: 
 
 ```
+cd rest
 pip install -r requirements.txt
 ```
 

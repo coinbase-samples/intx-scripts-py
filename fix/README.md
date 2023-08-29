@@ -1,4 +1,4 @@
-# International Exchange FIX README.md
+# Coinbase International Exchange FIX README.md
 
 This repository is a Python application for Coinbase's International Exchange (INTX) FIX API.
 # Getting started
@@ -12,9 +12,10 @@ git clone https://github.com/coinbase-samples/intx-scripts-py
 
 ## 2. Configuration
 
-You will need to install two dependencies for this to operate: quickfix and certifi. This allows for Python to successfully connect to Coinbase via FIX. This can be done with the following command:
+You will need to install two dependencies for this to operate: quickfix and certifi. This allows for Python to successfully connect to Coinbase via FIX. From the root of the directory, this can be done with the following commands:
 
 ```
+cd fix
 pip install -r requirements.txt
 ```
 
@@ -36,7 +37,7 @@ export TARGET_COMP_ID=CBINTLOE
 Order details are configured inside `build_create_order.py`. Adjust order details in here, then place the order via the following command:
 
 ```
-export ORDER_DICT=$(python client_create_order.py) 
+export order_dict=$(python client_create_order.py) 
 ```
 
 The FIX application will connect to Coinbase, place the order with the provided order details, and then send a logout message to disconnect.
@@ -44,11 +45,11 @@ The FIX application will connect to Coinbase, place the order with the provided 
 This saves critical order details to an environment variable dictionary. The next command allows us to parse this dictionary and save them to individual environment variables:
 
 ```
-export FIX_CLIENT_ORDER_ID=$(echo $ORDER_DICT | jq -r '."last_client_order_id"')
-export FIX_ORDER_ID=$(echo $ORDER_DICT | jq -r '."last_order_id"')
-export FIX_QUANTITY=$(echo $ORDER_DICT | jq -r '."last_quantity"')
-export FIX_SIDE=$(echo $ORDER_DICT | jq -r '."last_side"')
-export FIX_PRODUCT_ID=$(echo $ORDER_DICT | jq -r '."last_product_id"')
+export fix_client_order_id=$(echo order_dict | jq -r '."last_client_order_id"')
+export fix_order_id=$(echo order_dict | jq -r '."last_order_id"')
+export fix_quantity=$(echo order_dict | jq -r '."last_quantity"')
+export fix_side=$(echo order_dict | jq -r '."last_side"')
+export fix_product_id=$(echo order_dict | jq -r '."last_product_id"')
 ```
 
 Now, these variables are ready to be used in either of the following requests:

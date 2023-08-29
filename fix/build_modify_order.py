@@ -14,7 +14,7 @@
 import os, time
 import quickfix as fix
 from app.fix_session import Application
-from app.dictionary import side_buy
+from app.dictionary import SIDE_BUY
 
 class BuildModify(Application):
 
@@ -34,7 +34,7 @@ class BuildModify(Application):
         message.setField(fix.OrigClOrdID(str(client_order_id)))
         message.setField(fix.OrderQty(float(base_quantity)))
         message.setField(fix.Price(float(limit_price)))
-        message.setField(fix.Side(fix.Side_BUY if side == side_buy else fix.Side_SELL))
+        message.setField(fix.Side(fix.Side_BUY if side == SIDE_BUY else fix.Side_SELL))
 
         print(side)
         trstime = fix.TransactTime()

@@ -14,7 +14,7 @@
 import json, hmac, hashlib, time, requests, base64, os
 from urllib.parse import urlparse
 
-url = 'https://api-n5e1.coinbase.com/api/v1/instruments'
+url = 'https://api.international.coinbase.com/api/v1/instruments'
 
 ACCESS_KEY = os.environ.get('ACCESS_KEY')
 SIGNING_KEY = os.environ.get('SIGNING_KEY')

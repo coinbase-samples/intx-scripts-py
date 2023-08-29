@@ -1,4 +1,4 @@
-# International Exchange (INTX) API Scripts
+# Coinbase International Exchange (INTX) API Scripts
 
 This repository provides Python examples of the Coinbase International Exchange Public APIs. These scripts are meant to be examples of minimally viable requests; therefore, logic is repeated between REST scripts to highlight what is necessary for any specific request, and FIX is designed to disconnect after each action.
 # Getting started

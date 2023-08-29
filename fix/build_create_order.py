@@ -13,7 +13,7 @@
 # limitations under the License.
 import quickfix as fix
 from app.fix_session import Application
-from app.dictionary import type_market, type_limit, side_type_buy, side_type_sell
+from app.dictionary import FIELD_EXPIRE_TIME, FIELD_TARGET_STRATEGY, STRATEGY_LIMIT, TIME_IN_FORCE_GTT
 
 class BuildCreate(Application):
 
@@ -27,16 +27,16 @@ class BuildCreate(Application):
         message = self.create_header(fixSession.portfolio_id, fix.MsgType(fix.MsgType_NewOrderSingle))
         message.setField(fix.Symbol(product))
 
-        if order_type == type_market:
+        if order_type == 'MARKET':
             message.setField(fix.OrdType(fix.OrdType_MARKET))
             message.setField(847, 'M')
-        elif order_type == type_limit:
+        elif order_type == 'LIMIT':
             message.setField(fix.OrdType(fix.OrdType_LIMIT))
-            message.setField(fix.TimeInForce('6'))
-            message.setField(126, "20230901-00:00:10.000")
-            message.setField(847, 'L')
+            message.setField(fix.TimeInForce(TIME_IN_FORCE_GTT))
+            message.setField(FIELD_EXPIRE_TIME, "20231001-00:00:10.000")
+            message.setField(FIELD_TARGET_STRATEGY, STRATEGY_LIMIT)
             message.setField(fix.Price(float(limit_price)))
-        message.setField(fix.Side(fix.Side_BUY if side == side_type_buy else fix.Side_SELL))
+        message.setField(fix.Side(fix.Side_BUY if side == 'BUY' else fix.Side_SELL))
         message.setField(fix.OrderQty(float(base_quantity)))
 
         fixSession.send_message(message)
