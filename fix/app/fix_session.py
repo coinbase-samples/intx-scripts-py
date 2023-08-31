@@ -119,11 +119,11 @@ class Application(fix.Application):
 
     def __init__(self):
         super().__init__()
-        self.last_order_id = last_order_id
-        self.last_client_order_id = last_client_order_id
-        self.last_product_id = last_product_id
-        self.last_side = last_side
-        self.last_quantity = last_quantity
+        self.last_order_id = ''
+        self.last_client_order_id = ''
+        self.last_product_id = ''
+        self.last_side = ''
+        self.last_quantity = ''
         self.firstRun = True
 
     def onCreate(self, sessionID):

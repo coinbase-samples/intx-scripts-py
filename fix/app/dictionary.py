@@ -11,12 +11,6 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-last_order_id = ''
-last_client_order_id = ''
-last_product_id = ''
-last_side = ''
-last_quantity = ''
-
 FIELD_MSGTYPE = 35
 MSGTYPE_EXECUTION_REPORT = '8'
 MSGTYPE_REJECT = '3'
